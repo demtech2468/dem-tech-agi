@@ -1,17 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dem-tech-dwellings</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
-    <meta property="og:image" content="/og-image.png" />
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dépenses Demtech</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="login-container">
+    <h2>Connexion</h2>
+    <input type="text" id="username" placeholder="Nom d'utilisateur">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button id="login-btn">Se connecter</button>
+  </div>
 
-  <body>
-    <div id="root"></div>
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <div id="app-container" class="hidden">
+    <h1>Dépenses Demtech</h1>
+    <div id="summary">
+      <p><strong>Budget :</strong> <span id="budget-display">0</span> cfa</p>
+      <p><strong>Revenus :</strong> <span id="income-display">0</span> cfa</p>
+      <p><strong>Dettes :</strong> <span id="debt-display">0</span> cfa</p>
+      <p><strong>Dépenses :</strong> <span id="expense-display">0</span> cfa</p>
+    </div>
+
+    <div id="actions">
+      <h3>Ajouter des données</h3>
+      <input type="number" id="amount" placeholder="Montant (cfa)">
+      <select id="type">
+        <option value="income">Revenu</option>
+        <option value="expense">Dépense</option>
+        <option value="debt">Dette</option>
+      </select>
+      <button id="add-btn">Ajouter</button>
+    </div>
+    <button id="logout-btn">Se déconnecter</button>
+  </div>
+
+<style>
+    
+    body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+}
+
+.hidden {
+  display: none;
+}
+
+#login-container, #app-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+h1, h2 {
+  text-align: center;
+}
+
+input, select, button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#summary p {
+  margin: 10px 0;
+}
+
+    
+</style>
+
+<script>
+    
+    // Variables globales
+let budget = 0;
+let income = 0;
+let expense = 0;
+let debt = 0;
+
+// Chargement des données sauvegardées
+window.onload = () => {
+  const savedData = JSON.parse(localStorage.getItem('expensesApp')) || {};
+  budget = savedData.budget || 0;
+  income = savedData.income || 0;
+  expense = savedData.expense || 0;
+  debt = savedData.debt || 0;
+
+  updateSummary();
+
+  const loggedIn = localStorage.getItem('loggedIn');
+  if (loggedIn) {
+    document.getElementById('login-container').classList.add('hidden');
+    document.getElementById('app-container').classList.remove('hidden');
+  }
+};
+
+// Connexion
+document.getElementById('login-btn').addEventListener('click', () => {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  if (username && password) {
+    localStorage.setItem('loggedIn', true);
+    document.getElementById('login-container').classList.add('hidden');
+    document.getElementById('app-container').classList.remove('hidden');
+  } else {
+    alert('Veuillez remplir tous les champs.');
+  }
+});
+
+// Ajout de données
+document.getElementById('add-btn').addEventListener('click', () => {
+  const amount = parseFloat(document.getElementById('amount').value);
+  const type = document.getElementById('type').value;
+
+  if (!isNaN(amount) && amount > 0) {
+    if (type === 'income') {
+      income += amount;
+      budget += amount;
+    } else if (type === 'expense') {
+      expense += amount;
+      budget -= amount;
+    } else if (type === 'debt') {
+      debt += amount;
+      budget -= amount;
+    }
+
+    saveData();
+    updateSummary();
+    document.getElementById('amount').value = '';
+  } else {
+    alert('Veuillez entrer un montant valide.');
+  }
+});
+
+// Mise à jour de l'affichage
+function updateSummary() {
+  document.getElementById('budget-display').textContent = budget.toFixed(2);
+  document.getElementById('income-display').textContent = income.toFixed(2);
+  document.getElementById('expense-display').textContent = expense.toFixed(2);
+  document.getElementById('debt-display').textContent = debt.toFixed(2);
+}
+
+// Sauvegarde des données
+function saveData() {
+  const data = { budget, income, expense, debt };
+  localStorage.setItem('expensesApp', JSON.stringify(data));
+}
+
+// Déconnexion
+document.getElementById('logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('loggedIn');
+  document.getElementById('app-container').classList.add('hidden');
+  document.getElementById('login-container').classList.remove('hidden');
+});
+
+    
+</script>
+
+
+  <script src="app.js"></script>
+</body>
 </html>
